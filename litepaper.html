@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whale Trend | Litepaper</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    :root {
+      --neon-cyan: #00d4ff;
+      --neon-blue: #00b4ff;
+      --bg-dark: #000a12;
+      --screen-glass: rgba(0, 20, 40, 0.6);
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: #e0f2fe;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Dedicated 3D Particle Canvas */
+    #litepaper-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+    }
+
+    /* 3D Scene perspective */
+    .scene {
+      perspective: 1500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 120px 20px 50px 20px;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Holographic Screen wrapper */
+    .hologram-screen {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      background: var(--screen-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: 16px;
+      box-shadow:
+        0 0 40px rgba(0, 212, 255, 0.2),
+        inset 0 0 50px rgba(0, 212, 255, 0.1);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+
+    .hologram-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 10%, transparent 90%, rgba(0, 212, 255, 0.05) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* CRT Scan Line Overlay */
+    .scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 212, 255, 0.05) 50%, rgba(0, 212, 255, 0.05));
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .content-wrapper {
+      position: relative;
+      padding: 4rem;
+      z-index: 4;
+      transform: translateZ(30px);
+      /* Popping text out */
+    }
+
+    .litepaper-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      color: #fff;
+      text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+      margin-bottom: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .litepaper-sub {
+      color: var(--neon-cyan);
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      margin-bottom: 3rem;
+      text-shadow: 0 0 5px var(--neon-cyan);
+    }
+
+    .litepaper-content h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-top: 3rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+      padding-bottom: 0.5rem;
+      text-shadow: 0 0 8px rgba(0, 212, 255, 0.8);
+    }
+
+    .litepaper-content h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      color: var(--neon-cyan);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .litepaper-content p,
+    .litepaper-content li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b0c4de;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.5px;
+    }
+
+    .litepaper-content strong {
+      color: #fff;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      color: var(--neon-cyan);
+      text-decoration: none;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 212, 255, 0.2);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+      text-shadow: 0 0 5px #fff;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 2rem;
+      }
+
+      .litepaper-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="litepaper-canvas"></canvas>
+
+  <nav id="navbar" style="background: rgba(0,10,18,0.8); border-bottom: 1px solid rgba(0,212,255,0.2);">
+    <div class="nav-inner">
+      <div class="nav-brand glitch" data-text="WHALE TREND" onclick="window.open('https://app.virtuals.io/virtuals/70083', '_blank')"
+        style="cursor:pointer; text-shadow: 0 0 10px cyan;">
+        <img src="logo.png" alt="Whale Trend Logo" class="logo-img"
+          style="width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 10px cyan;" />
+        WHALE TREND
+      </div>
+    </div>
+  </nav>
+
+  <div class="scene">
+    <div class="hologram-screen" id="hologram">
+      <div class="scanlines"></div>
+      <div class="content-wrapper">
+        <a href="index.html" class="back-btn">← TERMINAL: BACK</a>
+
+        <h1 class="litepaper-title">Whale Trend</h1>
+        <div class="litepaper-sub">ALPHA AGENT LITEPAPER // NEON PROTOCOL</div>
+
+        <div class="litepaper-content">
+          <h2>1. Abstract</h2>
+          <p>The cryptocurrency market is heavily driven by narratives created by a small group of influential figures
+            (Celebrities, Founders, VCs, and Macro Analysts). Often, what these influencers say on social media
+            (X/Twitter,
+            Warpcast) does not align with what elite "smart money" wallets are doing on-chain. <strong>Whale
+              Trend</strong> bridges this gap. By tracking the top 10 most influential crypto voices and
+            cross-referencing their keywords with the real-time transactions of the top 0.1% of wallets, the Alpha Agent
+            detects narrative mismatches, identifies insider accumulation, and spots exit liquidity traps before the
+            retail
+            market reacts.</p>
+
+          <h2>2. The Problem: The Narrative Disconnect</h2>
+          <p>Retail investors are consistently used as exit liquidity. While key opinion leaders (KOLs) and crypto
+            billionaires promote long-term hodl narratives, their affiliated entities or insider networks are often
+            secretly
+            selling. Conversely, before a major announcement is made, insiders silently accumulate tokens while
+            maintaining
+            silence on social platforms. The typical retail trader relies <em>only</em> on the social feed, making them
+            the
+            last to act.</p>
+
+          <h2>3. The Solution: The Mastermind Alpha Agent</h2>
+          <p>Whale Trend deploys an AI-driven behavioral analysis engine specifically designed to monitor a curated list
+            of elite
+            crypto influencers.</p>
+
+          <h3>3.1 Global X Coverage & Example Targets</h3>
+          <p>The Alpha Agent operates on a global scale, comprehensively monitoring <strong>all accounts on X
+              (Twitter)</strong> to capture sentiment and keywords before they peak. It evaluates every account as a
+            potential source of alpha:</p>
+          <ul>
+            <li><strong>Founders, Investors & Celebrities</strong></li>
+            <li><strong>Micro-influencers & Anonymous Accounts</strong></li>
+            <li><strong>Bots, Community Pages & Data Sources</strong></li>
+          </ul>
+          <p>By analyzing and cross-referencing this raw data stream, the Agent continuously hunts for hidden or
+            early-stage
+            <strong>alpha tokens</strong>. While the Agent scans the entire network, below are <strong>examples</strong>
+            of
+            high-impact accounts that it tracks closely for major narrative shifts:
+          </p>
+          <ol>
+            <li><strong>@VitalikButerin</strong>: Triggers Layer-2, ZK, and Ethereum infrastructure alphas.</li>
+            <li><strong>@saylor</strong>: Macro BTC shifts and corporate accumulation signals.</li>
+            <li><strong>@elonmusk</strong>: Retail mania tokens, AI intersections, and DOGE algorithms.</li>
+            <li><strong>@APompliano</strong>: Institutional sentiment shifts.</li>
+            <li><strong>@brian_armstrong</strong>: Regulatory indicators and Coinbase listing previews.</li>
+            <li><strong>@cz_binance</strong>: Exchange trends, BNB ecosystem, and market liquidity.</li>
+            <li><strong>@ErikVoorhees</strong>: DeFi paradigm shifts and liberty-focused protocols.</li>
+            <li><strong>@cdixon</strong>: VC accumulation patterns and Web3 innovation.</li>
+            <li><strong>@BalajiS</strong>: Sovereign network states and deep-tech intersections.</li>
+            <li><strong>@MMCrypto</strong>: Leverage traps and short-term retail manipulation.</li>
+          </ol>
+
+          <h3>3.2 Real-Time Keyword & Sentiment Engine</h3>
+          <p>The Agent uses advanced NLP (Natural Language Processing) to scan incoming posts across the entire platform
+            in
+            milliseconds. It extracts entities (tickers, concepts like "ZK", "AI", "RWA") and assigns a sentiment score
+            (Bullish, Bearish, Neutral).</p>
+
+          <h3>3.3 The Mismatch Protocol (Finding Alpha)</h3>
+          <p>Once a keyword is detected, Whale Trend immediately queries its database of 12,847 elite wallets.</p>
+          <ul>
+            <li><strong>Scenario A (The Trap):</strong> Influencer posts a highly bullish tweet about $TOKEN. Whale
+              Trend detects
+              top 100 wallets depositing $TOKEN to Binance.<br /><strong>Action:</strong> Instant Alert → EXIT WARNING.
+            </li>
+            <li><strong>Scenario B (The Alpha):</strong> Influencer mentions a new concept (e.g., "AI x Crypto"). Whale
+              Trend
+              scans recent smart contract deployments matching that concept where elite wallets are currently routing
+              ETH.<br /><strong>Action:</strong> Instant Alert → INSIDER ACCUMULATION DETECTED.</li>
+          </ul>
+
+          <h2>4. Mastermind Access (Token Utility)</h2>
+          <p>Access to the Alpha Agent is highly restricted to prevent the signal from becoming "priced in" or diluted
+            by
+            the masses.</p>
+          <ul>
+            <li><strong>Requirement:</strong> Users must verifiably hold <strong>10,000,000 $WHALE</strong> (or the
+              native
+              Project Token).</li>
+            <li><strong>Utility:</strong> Holding this token balance grants access to the real-time Alpha Agent
+              dashboard,
+              webhook integrations (Discord/Telegram), and the automated Phantom Trade Bot (Copy-trade the mismatch).
+            </li>
+          </ul>
+
+          <h2>5. Roadmap</h2>
+          <ul>
+            <li><strong>Phase 1: Observation Mode.</strong> Launching social scanning + on-chain mismatch UI.</li>
+            <li><strong>Phase 2: Automated Autopsy.</strong> Weekly AI models generate "post-mortem" reports on how
+              whales
+              manipulated specific coins in the past.</li>
+            <li><strong>Phase 3: Inverse Trading.</strong> Direct DEX integration for Mastermind tier users to
+              automatically
+              inverse trade flagged influencer manipulation.</li>
+          </ul>
+
+          <h2>6. Conclusion</h2>
+          <p>Whale Trend does not trust the narrative; it trusts the data. By leveraging AI to instantly correlate
+            god-tier crypto influencers with god-tier on-chain wallets, we provide our users with the only edge that
+            matters: The truth.</p>
+          <p
+            style="text-align:center; font-style:italic; margin-top:3rem; color: var(--neon-cyan); letter-spacing: 2px;">
+            “Follow Smart Money. Not Their Lies.”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer" style="padding-top: 1rem; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+    <div class="footer-inner">
+      <a href="https://app.virtuals.io/virtuals/70083" target="_blank" class="footer-logo" style="text-decoration: none; cursor: pointer;">
+        <img src="logo.png" alt="Whale Trend Logo" class="logo-img"
+          style="width: 30px; height: 30px; border-width: 1px" />
+        <span class="logo-text">WHALE TREND</span>
+      </a>
+      <p class="footer-copy">© 2026 Whale Trend. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // --- 3D Hologram Tilt Effect ---
+    const hologram = document.getElementById('hologram');
+    const scene = document.querySelector('.scene');
+
+    let sceneRect = null;
+    let sceneTicking = false;
+
+    scene.addEventListener('mouseenter', () => {
+      sceneRect = scene.getBoundingClientRect();
+    });
+
+    window.addEventListener('scroll', () => { sceneRect = null; }, { passive: true });
+
+    scene.addEventListener('mousemove', (e) => {
+      if (!sceneRect) sceneRect = scene.getBoundingClientRect();
+      const x = e.clientX - sceneRect.left;
+      const y = e.clientY - sceneRect.top;
+      const centerX = sceneRect.width / 2;
+      const centerY = sceneRect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -8;
+      const rotateY = ((x - centerX) / centerX) * 8;
+
+      if (!sceneTicking) {
+        requestAnimationFrame(() => {
+          hologram.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+          hologram.style.boxShadow = `
+            ${-rotateY}px ${rotateX}px 40px rgba(0, 212, 255, 0.3), 
+            inset 0 0 50px rgba(0, 212, 255, 0.1)
+          `;
+          sceneTicking = false;
+        });
+        sceneTicking = true;
+      }
+    });
+
+    scene.addEventListener('mouseleave', () => {
+      hologram.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      hologram.style.boxShadow = `
+        0 0 40px rgba(0, 212, 255, 0.2), 
+        inset 0 0 50px rgba(0, 212, 255, 0.1)
+      `;
+    });
+
+    // --- Minimal Particle Background for Litepaper ---
+    const canvas = document.getElementById('litepaper-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+
+    function initCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      particles = [];
+      const density = window.innerWidth < 768 ? 40 : 100;
+      for (let i = 0; i < density; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: Math.random() * 2 + 0.5,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          alpha: Math.random() * 0.5 + 0.1
+        });
+      }
+    }
+    initCanvas();
+    window.addEventListener('resize', initCanvas);
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`;
+        ctx.fill();
+
+        // Connections
+        particles.forEach(p2 => {
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 * (1 - dist / 100)})`;
+            ctx.stroke();
+          }
+        });
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+
+</html>
