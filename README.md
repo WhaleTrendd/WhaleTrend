@@ -25,7 +25,8 @@ KOL shares a new **concept/narrative** → Smart money accumulates **silently** 
 
 ### 1. Clone / Download Repository
 ```bash
-cd c:\Users\kerem\Desktop\WHALETREND
+git clone https://github.com/WhaleTrendd/WhaleTrend.git
+cd WhaleTrend
 ```
 
 ### 2. Create Python Virtual Environment
