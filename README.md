@@ -23,6 +23,8 @@ KOL shares a new **concept/narrative** → Smart money accumulates **silently** 
 
 ## 🚀 Installation
 
+> **🔒 RESTRICTED ACCESS:** This repository and the following setup instructions are strictly for authorized team members only. Public use, distribution, or unauthorized access is prohibited. All keys and environments must be approved by the core team.
+
 ### 1. Clone / Download Repository
 ```bash
 git clone https://github.com/WhaleTrendd/WhaleTrend.git
