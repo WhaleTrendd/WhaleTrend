@@ -1,0 +1,18 @@
+# ─────────────────────────────────────────────
+# Core
+# ─────────────────────────────────────────────
+python-telegram-bot==21.6
+requests==2.31.0
+python-dotenv==1.0.1
+
+# ─────────────────────────────────────────────
+# NLP (opsiyonel - Windows'ta C++ compiler gerektirir)
+# Linux/Mac'te: pip install spacy && python -m spacy download en_core_web_sm
+# ─────────────────────────────────────────────
+# spacy==3.7.4
+
+# ─────────────────────────────────────────────
+# Yardımcı
+# ─────────────────────────────────────────────
+schedule==1.2.1
+colorlog==6.8.2
